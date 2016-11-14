@@ -22,39 +22,78 @@ describe('application logic', () => {
       }))
     })
     it('creates a tally for the voted entry', () => {
-      const state = Map({
+      expect(vote(Map({
+          round: 1,
           pair: List.of('Trainspotting', '28 days later')
-      });
-      const nextState = vote(state, 'Trainspotting');
-      expect(nextState).to.equal(Map({
+        }), 'Trainspotting', 'voter1')
+      ).to.equal(
+        Map({
+          round: 1,
           pair: List.of('Trainspotting', '28 days later'),
           tally: Map({
             'Trainspotting': 1
+          }),
+          votes: Map({
+            voter1: 'Trainspotting'
           })
-      }));
+        })
+      );
     });
 
     it('adds to tally for the voted entry', () => {
-      const state = Map({
-          round: 3,
+      expect(
+        vote(Map({
+          round: 1,
           pair: List.of('Trainspotting', '28 days later'),
           tally: Map({
             'Trainspotting': 3,
             '28 days later': 2
-          })
-      });
-
-      const nextState = vote(state, 'Trainspotting');
-      expect(nextState).to.equal(Map({
-          round: 3,
+          }),
+          votes: Map()
+        }), 'Trainspotting', 'voter1')
+      ).to.equal(
+        Map({
+          round: 1,
           pair: List.of('Trainspotting', '28 days later'),
           tally: Map({
             'Trainspotting': 4,
             '28 days later': 2
+          }),
+          votes: Map({
+            voter1: 'Trainspotting'
           })
-      }));
+        })
+      );
     });
 
+    it('removes previous vote on duplicate', () => {
+      expect(
+        vote(Map({
+          round: 1,
+          pair: List.of('Trainspotting', '28 days later'),
+          tally: Map({
+            'Trainspotting': 3,
+            '28 days later': 2
+          }),
+          votes: Map({
+            voter1: '28 days later'
+          })
+        }), 'Trainspotting', 'voter1')
+      ).to.equal(
+        Map({
+          round: 1,
+          pair: List.of('Trainspotting', '28 days later'),
+          tally: Map({
+            'Trainspotting': 4,
+            '28 days later': 1
+          }),
+          votes: Map({
+            voter1: 'Trainspotting'
+          })
+        })
+      )
+    });
+    
   });
 
   describe('next', () => {
